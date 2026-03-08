@@ -1,10 +1,20 @@
 import { useState, useMemo } from "react";
-import { MagnifyingGlassIcon, WhatsappLogoIcon } from "@phosphor-icons/react";
+import { MagnifyingGlassIcon, WhatsappLogoIcon, ShoppingCartIcon, CheckIcon } from "@phosphor-icons/react";
 import { products, CATEGORIES, formatPrice, whatsappLink, type Product } from "../../data/products";
+import { useCart } from "../../context/CartContext";
 
 // ─── ProductCard ─────────────────────────────────────────────────────────────
 
 function ProductCard({ product }: { product: Product }) {
+  const { addToCart } = useCart();
+  const [added, setAdded] = useState(false);
+
+  const handleAddToCart = () => {
+    addToCart(product);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
+  };
+
   const badgeColor =
     product.badge === "Novo"
       ? "bg-pink-500"
@@ -13,7 +23,7 @@ function ProductCard({ product }: { product: Product }) {
       : "bg-rose-400";
 
   return (
-    <div className="group bg-white rounded-2xl overflow-hidden border border-pink-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+    <div className="group bg-white rounded-2xl overflow-hidden border border-pink-100 shadow-sm hover:shadow-md transition-all duration-300">
       {/* Imagem */}
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
@@ -36,7 +46,7 @@ function ProductCard({ product }: { product: Product }) {
           <h3 className="text-sm font-semibold text-pink-950 leading-tight">
             {product.name}
           </h3>
-          <p className="text-xs text-pink-400 mt-0.5">{product.desc}</p>
+          <p className="text-xs text-pink-400 mt-0.5 line-clamp-1">{product.desc}</p>
         </div>
 
         <div className="flex items-center justify-between">
@@ -45,15 +55,38 @@ function ProductCard({ product }: { product: Product }) {
           </span>
         </div>
 
-        <a
-          href={whatsappLink(product.name)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-1.5 w-full rounded-full bg-emerald-500 hover:bg-emerald-600 active:scale-95 transition-all text-white text-xs font-semibold py-2"
-        >
-          <WhatsappLogoIcon size={14} weight="fill" />
-          Pedir pelo WhatsApp
-        </a>
+        <div className="grid grid-cols-5 gap-2">
+          <button
+            onClick={handleAddToCart}
+            className={`col-span-2 flex items-center justify-center gap-1.5 rounded-xl border transition-all text-[11px] font-bold py-2 ${
+              added
+                ? "bg-pink-50 border-pink-200 text-pink-600"
+                : "bg-white border-pink-200 text-pink-500 hover:bg-pink-50 hover:border-pink-300"
+            }`}
+          >
+            {added ? (
+              <>
+                <CheckIcon size={14} weight="bold" />
+                <span>Vem!</span>
+              </>
+            ) : (
+              <>
+                <ShoppingCartIcon size={14} weight="bold" />
+                <span>Add</span>
+              </>
+            )}
+          </button>
+
+          <a
+            href={whatsappLink(product.name)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="col-span-3 flex items-center justify-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 active:scale-95 transition-all text-white text-[11px] font-bold py-2 shadow-sm shadow-emerald-100"
+          >
+            <WhatsappLogoIcon size={14} weight="fill" />
+            <span>Pedir agora</span>
+          </a>
+        </div>
       </div>
     </div>
   );
