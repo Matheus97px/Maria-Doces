@@ -38,7 +38,7 @@ function Footer() {
         <article className="space-y-4">
           <h6 className="font-bold text-pink-950 uppercase tracking-wider text-xs">Links rápidos</h6>
           <ul className="grid grid-cols-2 gap-2 text-sm text-pink-700">
-            {["Início", "Produtos", "Promoções", "Sobre nós", "Contato"].map((item) => (
+            {["Início", "Pascoa"].map((item) => (
               <li key={item}>
                 <a href={`#${item.toLowerCase().replace(" ", "").replace("ç", "c").replace("í", "i")}`} className="hover:text-pink-500 transition-colors">
                   {item}
