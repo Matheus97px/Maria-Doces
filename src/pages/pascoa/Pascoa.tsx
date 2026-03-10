@@ -10,6 +10,7 @@ import {
   CATEGORIES,
   CATEGORIESCHOC,
   CATEGORIESTIPO,
+  RECHEIOS,
   formatPrice,
   whatsappLink,
   type Product,
@@ -21,9 +22,13 @@ import { useCart } from "../../context/CartContext";
 function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
   const [added, setAdded] = useState(false);
+  const [recheio, setRecheio] = useState("");
+
+  const canOrder = !product.hasRecheio || recheio !== "";
 
   const handleAddToCart = () => {
-    addToCart(product);
+    if (!canOrder) return;
+    addToCart(product, product.hasRecheio ? recheio : undefined);
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   };
@@ -35,7 +40,6 @@ function ProductCard({ product }: { product: Product }) {
       ? "bg-amber-400"
       : "bg-rose-400";
 
-  // Monta mensagem completa com todos os atributos do produto
   const productDetails = `${product.name} - ${product.type} - ${product.chocoType} - ${product.category}`;
 
   return (
@@ -48,13 +52,10 @@ function ProductCard({ product }: { product: Product }) {
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
         {product.badge && (
-          <span
-            className={`absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full text-white ${badgeColor}`}
-          >
+          <span className={`absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full text-white ${badgeColor}`}>
             {product.badge}
           </span>
         )}
-        {/* Peso no canto superior direito */}
         <span className="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/80 text-pink-700 backdrop-blur-sm">
           {product.category}
         </span>
@@ -66,12 +67,10 @@ function ProductCard({ product }: { product: Product }) {
           <h3 className="text-sm font-semibold text-pink-950 leading-tight">
             {product.name}
           </h3>
-          <p className="text-xs text-pink-400 mt-0.5 line-clamp-1">
-            {product.desc}
-          </p>
+          <p className="text-xs text-pink-400 mt-0.5 line-clamp-1">{product.desc}</p>
         </div>
 
-        {/* Atributos do produto */}
+        {/* Tags */}
         <div className="flex flex-wrap gap-1">
           <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
             {product.chocoType}
@@ -79,47 +78,69 @@ function ProductCard({ product }: { product: Product }) {
           <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-pink-50 text-pink-600 border border-pink-100">
             {product.type}
           </span>
-          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-100">
-            {product.category}
-          </span>
         </div>
 
+        {/* Dropdown de recheio */}
+        {product.hasRecheio && (
+          <div>
+            <label className="text-[10px] font-semibold text-pink-400 uppercase tracking-wide block mb-1">
+              Escolha o recheio
+            </label>
+            <select
+              value={recheio}
+              onChange={(e) => setRecheio(e.target.value)}
+              className="w-full text-xs rounded-xl border border-pink-200 bg-white text-pink-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300 transition cursor-pointer"
+            >
+              <option value="">Selecione...</option>
+              {RECHEIOS.map((r) => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Preço */}
         <div className="flex items-center justify-between">
           <span className="text-base font-bold text-pink-600">
             {formatPrice(product.price)}
           </span>
         </div>
 
+        {/* Botões */}
         <div className="grid grid-cols-5 gap-2">
+          {/* Add ao carrinho — bloqueado se precisa de recheio e não selecionou */}
           <button
             onClick={handleAddToCart}
+            disabled={!canOrder}
             className={`col-span-2 flex items-center justify-center gap-1.5 rounded-xl border transition-all text-[11px] font-bold py-2 ${
-              added
+              !canOrder
+                ? "bg-gray-50 border-gray-200 text-gray-300 cursor-not-allowed"
+                : added
                 ? "bg-pink-50 border-pink-200 text-pink-600"
                 : "bg-white border-pink-200 text-pink-500 hover:bg-pink-50 hover:border-pink-300"
             }`}
           >
             {added ? (
-              <>
-                <CheckIcon size={14} weight="bold" />
-                <span>Adicionado!</span>
-              </>
+              <><CheckIcon size={14} weight="bold" /><span>Adicionado!</span></>
             ) : (
-              <>
-                <ShoppingCartIcon size={14} weight="bold" />
-                <span>Add</span>
-              </>
+              <><ShoppingCartIcon size={14} weight="bold" /><span>Add</span></>
             )}
           </button>
 
+          {/* Pedir direto no WhatsApp */}
           <a
-            href={whatsappLink(productDetails)}
-            target="_blank"
+            href={canOrder ? whatsappLink(productDetails, recheio || undefined) : "#"}
+            target={canOrder ? "_blank" : undefined}
             rel="noopener noreferrer"
-            className="col-span-3 flex items-center justify-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 active:scale-95 transition-all text-white text-[11px] font-bold py-2 shadow-sm shadow-emerald-100"
+            onClick={(e) => { if (!canOrder) e.preventDefault(); }}
+            className={`col-span-3 flex items-center justify-center gap-1.5 rounded-xl transition-all text-white text-[11px] font-bold py-2 ${
+              canOrder
+                ? "bg-emerald-500 hover:bg-emerald-600 active:scale-95 shadow-sm shadow-emerald-100"
+                : "bg-gray-300 cursor-not-allowed"
+            }`}
           >
             <WhatsappLogoIcon size={14} weight="fill" />
-            <span>Pedir agora</span>
+            <span>{canOrder ? "Pedir agora" : "Escolha o recheio"}</span>
           </a>
         </div>
       </div>
@@ -165,15 +186,15 @@ function FilterGroup({ label, options, active, onChange }: FilterGroupProps) {
 
 export default function Pascoa() {
   const [activeCategory, setActiveCategory] = useState("Todos");
-  const [activeChoc, setActiveChoc] = useState("Todos");
-  const [activeTipo, setActiveTipo] = useState("Todos");
-  const [search, setSearch] = useState("");
+  const [activeChoc, setActiveChoc]         = useState("Todos");
+  const [activeTipo, setActiveTipo]         = useState("Todos");
+  const [search, setSearch]                 = useState("");
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
-      const matchCat = activeCategory === "Todos" || p.category === activeCategory;
-      const matchChoc = activeChoc === "Todos" || p.chocoType === activeChoc;
-      const matchTipo = activeTipo === "Todos" || p.type === activeTipo;
+      const matchCat    = activeCategory === "Todos" || p.category  === activeCategory;
+      const matchChoc   = activeChoc     === "Todos" || p.chocoType === activeChoc;
+      const matchTipo   = activeTipo     === "Todos" || p.type      === activeTipo;
       const matchSearch = p.name.toLowerCase().includes(search.toLowerCase().trim());
       return matchCat && matchChoc && matchTipo && matchSearch;
     });
@@ -194,20 +215,11 @@ export default function Pascoa() {
       {/* Cabeçalho */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div>
-          <h2 className="text-2xl font-semibold text-pink-950">
-            🐣 Ovos de Páscoa
-          </h2>
-          <p className="text-xs text-pink-400 mt-1">
-            Use os filtros para encontrar o ovo ideal
-          </p>
+          <h2 className="text-2xl font-semibold text-pink-950">🐣 Ovos de Páscoa</h2>
+          <p className="text-xs text-pink-400 mt-1">Use os filtros para encontrar o ovo ideal</p>
         </div>
-
-        {/* Search */}
         <div className="relative w-full md:w-64">
-          <MagnifyingGlassIcon
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-300"
-          />
+          <MagnifyingGlassIcon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-300" />
           <input
             type="text"
             placeholder="Buscar produto..."
@@ -218,39 +230,20 @@ export default function Pascoa() {
         </div>
       </div>
 
-      {/* 3 Grupos de filtros */}
+      {/* Filtros */}
       <div className="bg-pink-50/60 rounded-2xl p-4 mb-8 space-y-4 border border-pink-100">
-        <FilterGroup
-          label="Peso"
-          options={CATEGORIES}
-          active={activeCategory}
-          onChange={setActiveCategory}
-        />
-        <FilterGroup
-          label="Tipo de Chocolate"
-          options={CATEGORIESCHOC}
-          active={activeChoc}
-          onChange={setActiveChoc}
-        />
-        <FilterGroup
-          label="Tipo de Ovo"
-          options={CATEGORIESTIPO}
-          active={activeTipo}
-          onChange={setActiveTipo}
-        />
+        <FilterGroup label="Peso"              options={CATEGORIES}     active={activeCategory} onChange={setActiveCategory} />
+        <FilterGroup label="Tipo de Chocolate" options={CATEGORIESCHOC} active={activeChoc}     onChange={setActiveChoc} />
+        <FilterGroup label="Tipo de Ovo"       options={CATEGORIESTIPO} active={activeTipo}     onChange={setActiveTipo} />
       </div>
 
-      {/* Contador + limpar filtros */}
+      {/* Contador + limpar */}
       <div className="flex items-center justify-between mb-4">
         <p className="text-xs text-pink-400">
-          {filtered.length} produto{filtered.length !== 1 ? "s" : ""} encontrado
-          {filtered.length !== 1 ? "s" : ""}
+          {filtered.length} produto{filtered.length !== 1 ? "s" : ""} encontrado{filtered.length !== 1 ? "s" : ""}
         </p>
         {hasActiveFilters && (
-          <button
-            onClick={clearFilters}
-            className="text-xs text-pink-500 underline underline-offset-2 hover:text-pink-700 transition-colors"
-          >
+          <button onClick={clearFilters} className="text-xs text-pink-500 underline underline-offset-2 hover:text-pink-700 transition-colors">
             Limpar filtros
           </button>
         )}
@@ -259,18 +252,13 @@ export default function Pascoa() {
       {/* Grid */}
       {filtered.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {filtered.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
+          {filtered.map((p) => <ProductCard key={p.id} product={p} />)}
         </div>
       ) : (
         <div className="text-center py-20 text-pink-400">
           <p className="text-4xl mb-3">🥚</p>
           <p className="text-sm font-medium">Nenhum ovo encontrado com esses filtros.</p>
-          <button
-            onClick={clearFilters}
-            className="mt-3 text-xs text-pink-500 underline underline-offset-2 hover:text-pink-700 transition-colors"
-          >
+          <button onClick={clearFilters} className="mt-3 text-xs text-pink-500 underline underline-offset-2 hover:text-pink-700 transition-colors">
             Limpar filtros
           </button>
         </div>
