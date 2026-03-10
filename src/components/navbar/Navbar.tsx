@@ -6,8 +6,8 @@ import { whatsappLink } from "../../data/products";
 
 const NAV_LINKS = [
   { label: "Início", to: "/" },
-  { label: "Produtos", to: "/products" },
-  { label: "🐣 Páscoa", to: "/pascoa", seasonal: true },
+  // { label: "Produtos", to: "/products" },
+  { label: "Páscoa", to: "/pascoa", seasonal: true },
 ];
 
 function Navbar() {

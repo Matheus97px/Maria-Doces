@@ -48,9 +48,7 @@ export default function HomePage() {
       >
         {/* Texto */}
         <div className="flex-1 space-y-5">
-          <p className="text-xs font-semibold tracking-widest text-pink-400 uppercase">
-            Feito com amor 🍓
-          </p>
+     
           <h1 className="font-serif text-4xl md:text-5xl text-pink-950 leading-tight">
             Os doces mais{" "}
             <span className="text-pink-500 italic">apaixonantes</span>

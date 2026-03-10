@@ -67,7 +67,7 @@ function ProductCard({ product }: { product: Product }) {
             {added ? (
               <>
                 <CheckIcon size={14} weight="bold" />
-                <span>Vem!</span>
+                <span>Adicionado!</span>
               </>
             ) : (
               <>
