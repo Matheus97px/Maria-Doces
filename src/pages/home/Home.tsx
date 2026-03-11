@@ -149,7 +149,7 @@ export default function HomePage() {
         {/* Texto */}
         <div className="flex-1 space-y-5">
           <p className="text-xs font-semibold tracking-widest text-amber-500 uppercase">
-            🐣 Páscoa 2025
+            🐣 Páscoa 2026
           </p>
           <h1 className="font-serif text-4xl md:text-5xl text-pink-950 leading-tight">
             Ovos de Páscoa{" "}
